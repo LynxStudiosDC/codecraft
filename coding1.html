@@ -281,6 +281,24 @@
         consoleOutput.innerHTML += args.join(' ') + '<br>';
       };
     }
+    async function downloadProject() {
+      const zip = new JSZip();
+      
+      Object.keys(files).forEach(filename => {
+        zip.file(filename, files[filename]);
+      });
+      
+      const content = await zip.generateAsync({type: "blob"});
+      const url = URL.createObjectURL(content);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'CodeCraft_Project.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
 
     window.onload = initEditor;
   </script>
