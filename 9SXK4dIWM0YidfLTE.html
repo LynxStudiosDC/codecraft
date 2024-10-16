@@ -1,0 +1,166 @@
+<html><head><base href="https://www.lynxstudios.xyz/api">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeCraft - Online IDE</title>
+<style>
+  :root {
+    --primary-color: #0080ff;
+    --secondary-color: #1c2333;
+    --background-color: #0e1525;
+    --text-color: #ffffff;
+    --border-color: #30363d;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    height: 100%;
+    overflow: hidden;
+  }
+  .container {
+    display: flex;
+    height: 100vh;
+  }
+  .sidebar {
+    width: 200px;
+    background-color: var(--secondary-color);
+    border-right: 1px solid var(--border-color);
+    padding: 20px;
+  }
+  .main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .editor {
+    flex-grow: 1;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .console {
+    height: 200px;
+    background-color: var(--secondary-color);
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .header {
+    background-color: var(--secondary-color);
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  button:hover {
+    opacity: 0.9;
+  }
+  .file-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  .file-list li {
+    cursor: pointer;
+    padding: 5px 0;
+  }
+  .file-list li:hover {
+    color: var(--primary-color);
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h3>Files</h3>
+      <ul class="file-list">
+        <li onclick="loadFile('index.html')">index.html</li>
+        <li onclick="loadFile('styles.css')">styles.css</li>
+        <li onclick="loadFile('script.js')">script.js</li>
+      </ul>
+    </div>
+    <div class="main">
+      <div class="header">
+        <div class="logo">CodeCraft</div>
+        <button onclick="runCode()">Run</button>
+      </div>
+      <div id="editor" class="editor"></div>
+      <div id="console" class="console"></div>
+    </div>
+  </div>
+
+  <script>
+    let editor;
+    let currentFile = 'index.html';
+    const files = {
+      'index.html': '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Web Page</title>\n  <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n  <h1>Welcome to CodeCraft!</h1>\n  <p>Start coding your web project here.</p>\n  <script src="script.js"><\/script>\n</body>\n</html>',
+      'styles.css': 'body {\n  font-family: Arial, sans-serif;\n  line-height: 1.6;\n  color: #333;\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 20px;\n}\n\nh1 {\n  color: #0080ff;\n}',
+      'script.js': 'console.log("Hello from CodeCraft!");\n\n// Your JavaScript code goes here'
+    };
+
+    function initEditor() {
+      editor = ace.edit("editor");
+      editor.setTheme("ace/theme/monokai");
+      editor.session.setMode("ace/mode/html");
+      editor.setValue(files[currentFile]);
+      editor.clearSelection();
+    }
+
+    function loadFile(filename) {
+      currentFile = filename;
+      editor.setValue(files[filename]);
+      editor.clearSelection();
+      
+      // Set the appropriate mode based on the file extension
+      const mode = filename.endsWith('.html') ? 'html' :
+                   filename.endsWith('.css') ? 'css' :
+                   filename.endsWith('.js') ? 'javascript' : 'text';
+      editor.session.setMode(`ace/mode/${mode}`);
+    }
+
+    function runCode() {
+      // Save the current file content
+      files[currentFile] = editor.getValue();
+
+      // Create a new window to display the result
+      const outputWindow = window.open('', 'CodeCraft Output', 'width=800,height=600');
+      outputWindow.document.open();
+      outputWindow.document.write(files['index.html']);
+      
+      // Inject CSS
+      const style = outputWindow.document.createElement('style');
+      style.textContent = files['styles.css'];
+      outputWindow.document.head.appendChild(style);
+      
+      // Inject JavaScript
+      const script = outputWindow.document.createElement('script');
+      script.textContent = files['script.js'];
+      outputWindow.document.body.appendChild(script);
+      
+      outputWindow.document.close();
+
+      // Capture console output
+      const consoleOutput = document.getElementById('console');
+      consoleOutput.innerHTML = '';
+      outputWindow.console.log = function(...args) {
+        consoleOutput.innerHTML += args.join(' ') + '<br>';
+      };
+    }
+
+    window.onload = initEditor;
+  </script>
+</body>
+</html>
