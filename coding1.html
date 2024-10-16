@@ -285,24 +285,34 @@
         consoleOutput.innerHTML += args.join(' ') + '<br>';
       };
     }
+
     async function downloadProject() {
-      const zip = new JSZip();
-      
-      Object.keys(files).forEach(filename => {
-        zip.file(filename, files[filename]);
-      });
-      
-      const content = await zip.generateAsync({type: "blob"});
-      const url = URL.createObjectURL(content);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'CodeCraft_Project.zip';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+  try {
+    const zip = new JSZip();
+
+    Object.keys(files).forEach(filename => {
+      zip.file(filename, files[filename]);
+    });
+
+    const content = await zip.generateAsync({ type: "blob" });
+
+    const url = URL.createObjectURL(content);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Codecraft.zip';
+    
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+
+    console.log("Project downloaded successfully!");
+  } catch (error) {
+    console.error("Error during the download process:", error);
+  }
+}
 
     window.onload = initEditor;
   </script>
